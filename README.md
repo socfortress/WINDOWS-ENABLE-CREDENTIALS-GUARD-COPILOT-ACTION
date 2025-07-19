@@ -1,10 +1,10 @@
-# PowerShell Active Response Template
+# PowerShell Enable Credential Guard Template
 
 This repository serves as a template for creating PowerShell-based active response scripts for security automation and incident response. The template provides a standardized structure and common functions to ensure consistent logging, error handling, and execution flow across all active response scripts.
 
 ## Overview
 
-The `automation-template.ps1` file is the foundation for all PowerShell active response scripts. It provides a robust framework with built-in logging, error handling, and standardized output formatting suitable for integration with security orchestration platforms, SIEM systems, and incident response workflows.
+The `Enable-Windows-Credential-Guard.ps1` file is the foundation for PowerShell active response scripts that enable Windows Credential Guard via registry policies, optionally rebooting the system. It provides a robust framework with built-in logging, error handling, and standardized output formatting suitable for integration with security orchestration platforms, SIEM systems, and incident response workflows.
 
 ## Template Structure
 
@@ -22,28 +22,28 @@ The template includes the following essential components:
 
 ### Command Line Execution
 ```powershell
-.\automation-template.ps1 [-MaxWaitSeconds <int>] [-LogPath <string>] [-ARLog <string>]
+.\Enable-Windows-Credential-Guard.ps1 [-RebootAfter] [-LogPath <string>] [-ARLog <string>]
 ```
 
 ### Parameters
 
-| Parameter | Type | Default Value | Description |
-|-----------|------|---------------|-------------|
-| `MaxWaitSeconds` | int | 300 | Maximum execution time in seconds before timeout |
-| `LogPath` | string | `$env:TEMP\Generic-Automation.log` | Path for detailed execution logs |
-| `ARLog` | string | `C:\Program Files (x86)\ossec-agent\active-response\active-responses.log` | Path for active response JSON output |
+| Parameter      | Type   | Default Value                                                    | Description                                  |
+|----------------|--------|------------------------------------------------------------------|----------------------------------------------|
+| `RebootAfter`  | switch | (optional)                                                       | Reboot system after enabling Credential Guard|
+| `LogPath`      | string | `$env:TEMP\EnableCredentialGuard-script.log`                     | Path for execution logs                      |
+| `ARLog`        | string | `C:\Program Files (x86)\ossec-agent\active-response\active-responses.log` | Path for active response JSON output         |
 
 ### Example Invocations
 
 ```powershell
-# Basic execution with default parameters
-.\automation-template.ps1
+# Enable Credential Guard (no reboot)
+.\Enable-Windows-Credential-Guard.ps1
 
-# Custom timeout and log paths
-.\automation-template.ps1 -MaxWaitSeconds 600 -LogPath "C:\Logs\my-script.log"
+# Enable Credential Guard and reboot
+.\Enable-Windows-Credential-Guard.ps1 -RebootAfter
 
-# Integration with OSSEC/Wazuh active response
-.\automation-template.ps1 -ARLog "C:\ossec\active-responses.log"
+# Custom log path
+.\Enable-Windows-Credential-Guard.ps1 -LogPath "C:\Logs\EnableCredentialGuard.log"
 ```
 
 ## Template Functions
@@ -63,9 +63,9 @@ The template includes the following essential components:
 
 **Usage**:
 ```powershell
-Write-Log "Process started successfully" 'INFO'
-Write-Log "Configuration file not found" 'WARN'
-Write-Log "Critical error occurred" 'ERROR'
+Write-Log "Credential Guard enabled. A reboot is required for changes to take effect." 'INFO'
+Write-Log "Failed to enable Credential Guard: ..." 'ERROR'
+Write-Log "Action JSON logged to C:\ossec\active-responses.log" 'INFO'
 Write-Log "Debug information" 'DEBUG'
 ```
 
@@ -92,9 +92,8 @@ Write-Log "Debug information" 'DEBUG'
 
 ### 2. Execution Phase
 - Script start logging with timestamp
-- Main action logic execution (customizable section)
+- Main action logic execution (set registry keys, enable policies, optional reboot)
 - Real-time logging of operations
-- Progress monitoring and timeout handling
 
 ### 3. Completion Phase
 - JSON result formatting and output
@@ -117,10 +116,9 @@ All scripts output standardized JSON responses to the active response log:
 {
   "timestamp": "2025-07-18T10:30:45.123Z",
   "host": "HOSTNAME",
-  "action": "script_action_name",
+  "action": "enable_credential_guard",
   "status": "success",
-  "result": "Action completed successfully",
-  "data": {}
+  "error": null
 }
 ```
 
@@ -129,16 +127,16 @@ All scripts output standardized JSON responses to the active response log:
 {
   "timestamp": "2025-07-18T10:30:45.123Z",
   "host": "HOSTNAME",
-  "action": "generic_error",
+  "action": "enable_credential_guard",
   "status": "error",
-  "error": "Detailed error message"
+  "error": "Failed to enable Credential Guard: Access is denied"
 }
 ```
 
 ## Implementation Guidelines
 
 ### 1. Customizing the Template
-1. Copy `automation-template.ps1` to your new script name
+1. Copy `Enable-Windows-Credential-Guard.ps1` to your new script name
 2. Replace the action logic section between the comment markers
 3. Update the action name in the JSON output
 4. Add any additional parameters as needed
@@ -148,16 +146,13 @@ All scripts output standardized JSON responses to the active response log:
 - Always use the provided logging functions
 - Implement proper error handling for all operations
 - Include meaningful progress messages
-- Test timeout scenarios
 - Validate all input parameters
 - Document any additional functions or parameters
 
 ### 3. Integration Considerations
-- Ensure proper file permissions for log paths
-- Configure appropriate timeout values for your use case
+- Ensure proper file permissions for log paths and registry access
 - Test script execution in target environments
 - Validate JSON output format compatibility
-- Consider network connectivity requirements
 
 ## Security Considerations
 
@@ -170,15 +165,14 @@ All scripts output standardized JSON responses to the active response log:
 ## Troubleshooting
 
 ### Common Issues
-1. **Permission Errors**: Ensure script has write access to log paths
-2. **Timeout Issues**: Adjust `MaxWaitSeconds` parameter for long-running operations
-3. **Log Rotation**: Check disk space and file permissions for log directory
-4. **JSON Format**: Validate output against expected schema
+1. **Permission Errors**: Ensure script has write access to log paths and registry keys, and is run as Administrator for registry modification and reboot
+2. **Log Rotation**: Check disk space and file permissions for log directory
+3. **JSON Format**: Validate output against expected schema
 
 ### Debug Mode
 Enable verbose logging by running with `-Verbose` parameter:
 ```powershell
-.\automation-template.ps1 -Verbose
+.\Enable-Windows-Credential-Guard.ps1 -Verbose
 ```
 
 ## Contributing
@@ -239,13 +233,13 @@ Invoke-WebRequest -Uri "https://github.com/{owner}/{repo}/releases/download/v1.0
 #### Option 2: Direct Download
 ```powershell
 # Download script directly
-Invoke-WebRequest -Uri "https://github.com/{owner}/{repo}/releases/download/v1.0.0/script-name.ps1" -OutFile "script-name.ps1"
+Invoke-WebRequest -Uri "https://github.com/{owner}/{repo}/releases/download/v1.0.0/Enable-Windows-Credential-Guard.ps1" -OutFile "Enable-Windows-Credential-Guard.ps1"
 ```
 
 #### Option 3: One-liner Execution
 ```powershell
 # Execute directly from URL (use with caution)
-Invoke-WebRequest -Uri "https://github.com/{owner}/{repo}/releases/download/v1.0.0/script-name.ps1" | Invoke-Expression
+Invoke-WebRequest -Uri "https://github.com/{owner}/{repo}/releases/download/v1.0.0/Enable-Windows-Credential-Guard.ps1" | Invoke-Expression
 ```
 
 ### Production Deployment
@@ -276,4 +270,4 @@ However, for environments requiring additional security or deployment simplifica
 
 ## License
 
-This template is provided as-is for security automation and incident response purposes.
+This template is provided as-is for security automation and incident response
