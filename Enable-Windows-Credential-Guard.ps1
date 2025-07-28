@@ -82,6 +82,7 @@ $results = [pscustomobject]@{
   action = 'enable_credential_guard'
   status = $status
   error = $errorMsg
+  copilot_soar = $true
 }
 
 try {
