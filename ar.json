@@ -1,5 +1,5 @@
 {
-  "active_response_name": "WINDOWS-ENABLE-CREDENTIALS-GUARD-ACTIVERESPONSE",
+  "copilot_action_name": "WINDOWS-ENABLE-CREDENTIALS-GUARD-ACTIVERESPONSE",
   "description": "Enables Windows Credential Guard by configuring Device Guard and LSA registry settings to secure credentials in memory. Optionally reboots the system for changes to take effect. Produces a JSON log with status and error details if any.",
   "technology": "Windows",
   "icon": "windows",
