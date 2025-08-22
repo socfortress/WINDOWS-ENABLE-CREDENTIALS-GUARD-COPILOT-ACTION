@@ -1,0 +1,33 @@
+{
+  "active_response_name": "WINDOWS-ENABLE-CREDENTIALS-GUARD-ACTIVERESPONSE",
+  "description": "Enables Windows Credential Guard by configuring Device Guard and LSA registry settings to secure credentials in memory. Optionally reboots the system for changes to take effect. Produces a JSON log with status and error details if any.",
+  "technology": "Windows",
+  "icon": "windows",
+  "script_parameters": [
+    {
+      "name": "RebootAfter",
+      "type": "boolean",
+      "required": false,
+      "description": "If true, automatically reboots the system after enabling Credential Guard.",
+      "default": false
+    },
+    {
+      "name": "LogPath",
+      "type": "string",
+      "required": false,
+      "description": "Path to the rotating human-readable script log.",
+      "default": "%TEMP%/EnableCredentialGuard-script.log"
+    },
+    {
+      "name": "ARLog",
+      "type": "string",
+      "required": false,
+      "description": "Active Response JSON log path. Overwrites existing content.",
+      "default": "C:\\Program Files (x86)\\ossec-agent\\active-response\\active-responses.log"
+    }
+  ],
+  "repo_url": "https://github.com/socfortress/WINDOWS-ENABLE-CREDENTIALS-GUARD-ACTIVERESPONSE",
+  "script_name": "Enable-Windows-Credential-Guard.ps1",
+  "version": "1.0.0",
+  "last_updated": "2025-08-22T00:00:00Z"
+}
